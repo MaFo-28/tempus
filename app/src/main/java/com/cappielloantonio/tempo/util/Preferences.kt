@@ -730,6 +730,5 @@ object Preferences {
     fun getTileSize(): Int {
         val parsed = App.getInstance().preferences.getString(TILE_SIZE, "2")?.toIntOrNull()
         return parsed?.takeIf { it in 2..6 } ?: 2
-        //return App.getInstance().preferences.getString(TILE_SIZE, "2")!!.toInt()
     }
 }

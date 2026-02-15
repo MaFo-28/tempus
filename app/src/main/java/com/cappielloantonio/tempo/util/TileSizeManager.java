@@ -167,7 +167,7 @@ public class TileSizeManager {
                 break;
         }
 
-        discoverWidthPx = Math.round(Math.min(screenWidth, screenHeight) / discoverDivisor);
+        discoverWidthPx = Math.round(Math.min(screenWidth, screenHeight) / discoverDivisor) - 50;
         discoverHeightPx = Math.round((float)discoverWidthPx * 0.6f);
         discoverIsInitialized = true;
     }
