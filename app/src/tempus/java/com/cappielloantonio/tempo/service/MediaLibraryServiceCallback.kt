@@ -41,8 +41,8 @@ import retrofit2.Callback
 import retrofit2.Response
 
 open class MediaLibrarySessionCallback(
-    context: Context,
-    automotiveRepository: AutomotiveRepository
+    private val context: Context,
+    private val automotiveRepository: AutomotiveRepository
 ) :
     MediaLibraryService.MediaLibrarySession.Callback {
 
