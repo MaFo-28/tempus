@@ -402,18 +402,19 @@ open class BaseMediaService : MediaLibraryService() {
     }
 
     fun setPlayer(oldPlayer: Player?, newPlayer: Player) {
-        if (oldPlayer === newPlayer) return
+        val customPlayer = if (newPlayer is CustomForwardingPlayer) newPlayer else CustomForwardingPlayer(newPlayer)
+        if (oldPlayer === customPlayer) return
         if (oldPlayer != null) {
             val currentQueue = getQueueFromPlayer(oldPlayer)
             val currentIndex = oldPlayer.currentMediaItemIndex
             val currentPosition = oldPlayer.currentPosition
             val isPlaying = oldPlayer.playWhenReady
             oldPlayer.stop()
-            newPlayer.setMediaItems(currentQueue, currentIndex, currentPosition)
-            newPlayer.playWhenReady = isPlaying
-            newPlayer.prepare()
+            customPlayer.setMediaItems(currentQueue, currentIndex, currentPosition)
+            customPlayer.playWhenReady = isPlaying
+            customPlayer.prepare()
         }
-        mediaLibrarySession.player = newPlayer
+        mediaLibrarySession.player = customPlayer
     }
 
     open fun releasePlayers() {
