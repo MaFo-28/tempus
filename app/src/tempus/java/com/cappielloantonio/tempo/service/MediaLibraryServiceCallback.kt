@@ -144,7 +144,7 @@ class MediaLibrarySessionCallback(
     }
 
     private fun fetchRadioItem(firstItem: MediaItem): ListenableFuture<List<MediaItem>> {
-        return Futures.transformAsync(
+        val radioFuture = Futures.transformAsync(
             automotiveRepository.internetRadioStations,
             { result ->
                 val selected = result?.value?.find { it.mediaId == firstItem.mediaId }
@@ -154,9 +154,15 @@ class MediaLibrarySessionCallback(
                         .build()
                     Futures.immediateFuture(listOf(updated))
                 } else {
-                    Futures.immediateFuture(emptyList())
+                    Futures.immediateFuture(listOf(firstItem))
                 }
             },
+            androidx.core.content.ContextCompat.getMainExecutor(context)
+        )
+        return Futures.catchingAsync(
+            radioFuture,
+            Exception::class.java,
+            { Futures.immediateFuture(listOf(firstItem)) },
             androidx.core.content.ContextCompat.getMainExecutor(context)
         )
     }
