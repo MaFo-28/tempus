@@ -223,36 +223,50 @@ open class BaseSessionCallback(
     ): ImmutableList<CommandButton> {
         val customLayout = mutableListOf<CommandButton>()
 
-    //    val showShuffle = Preferences.showShuffleInsteadOfHeart()
+        val allButtons = listOf(
+            "[heartID]",
+            "[repeatID]",
+            "[shuffleID]",
+            "[instantMixID]")
+        val tabButton = listOfNotNull(
+            Preferences.getCustomCommandFirstButton(),
+            Preferences.getCustomCommandSecondButton()
+        ).distinct()
 
-    //    if (!showShuffle) {
-            if (player.currentMediaItem != null && !isRatingPending) {
-                if ((player.mediaMetadata.userRating as HeartRating?)?.isHeart == true) {
-                    customLayout.add(customCommandToggleHeartOn)
-                } else {
-                    customLayout.add(customCommandToggleHeartOff)
-                }
-            }
-    //    } else {
-            customLayout.add(
-                if (player.shuffleModeEnabled) customCommandToggleShuffleModeOff
-                else customCommandToggleShuffleModeOn
-            )
-    //    }
+        val remainingButtons = allButtons.filter { it !in tabButton }
 
-        val repeatButton = when (player.repeatMode) {
-            Player.REPEAT_MODE_ONE -> customCommandToggleRepeatModeOne
-            Player.REPEAT_MODE_ALL -> customCommandToggleRepeatModeAll
-            else -> customCommandToggleRepeatModeOff
+        tabButton.forEach { id ->
+            getCommandButton(id, player, isRatingPending)?.let { customLayout.add(it) }
         }
-        customLayout.add(repeatButton)
 
-        if(!MediaManager.continuousPlayIsRunning.get())
-            customLayout.add(customCommandInstantMixOn)
-        else
-            customLayout.add(customCommandInstantMixOff)
+        remainingButtons.forEach { id ->
+            getCommandButton(id, player, isRatingPending)?.let { customLayout.add(it) }
+        }
 
         return ImmutableList.copyOf(customLayout)
+    }
+
+    private fun getCommandButton(id: String, player: Player, isRatingPending: Boolean): CommandButton? {
+        return when (id) {
+            "[heartID]" -> when {
+                player.currentMediaItem == null || isRatingPending -> null
+                (player.mediaMetadata.userRating as HeartRating?)?.isHeart == true -> customCommandToggleHeartOn
+                else -> customCommandToggleHeartOff
+            }
+
+            "[shuffleID]" -> if (player.shuffleModeEnabled) customCommandToggleShuffleModeOff
+            else customCommandToggleShuffleModeOn
+
+            "[repeatID]" -> when (player.repeatMode) {
+                Player.REPEAT_MODE_ONE -> customCommandToggleRepeatModeOne
+                Player.REPEAT_MODE_ALL -> customCommandToggleRepeatModeAll
+                else -> customCommandToggleRepeatModeOff
+            }
+
+            "[instantMixID]" -> if (!MediaManager.continuousPlayIsRunning.get()) customCommandInstantMixOn
+            else customCommandInstantMixOff
+            else -> null
+        }
     }
 
     // ─────────────────────────────────────────────────────────────
